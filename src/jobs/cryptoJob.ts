@@ -1,8 +1,9 @@
 import cron from "node-cron";
 import { fetchCryptoData } from "../service/coinService";
 import Crypto from "../models/crypto";
+import { getCoinIds } from "../core/constants";
 
-const coins = ["bitcoin", "matic-network", "ethereum"];
+const coins = getCoinIds();
 
 const fetchAndStoreCryptoData = async () => {
   try {
