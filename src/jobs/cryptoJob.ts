@@ -12,9 +12,9 @@ const fetchAndStoreCryptoData = async () => {
         const {
           usd: price,
           usd_market_cap: marketCap,
-          usd_24h_change: hourlyChange,
+          usd_24h_change: dailyChange,
         } = data[coinId];
-        const crypto = new Crypto({ coinId, price, marketCap, hourlyChange });
+        const crypto = new Crypto({ coinId, price, marketCap, dailyChange });
         await crypto.save();
       }
     }

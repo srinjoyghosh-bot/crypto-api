@@ -34,7 +34,7 @@ export const getCryptoStats = async (
         {
           price: latestRecord.price,
           marketCap: latestRecord.marketCap,
-          "24hChange": latestRecord.hourlyChange,
+          "24hChange": latestRecord.dailyChange,
         },
         "Crypto stats fetched successfully!"
       )

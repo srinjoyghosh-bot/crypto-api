@@ -4,7 +4,7 @@ export interface ICrypto extends Document {
   coinId: string;
   price: number;
   marketCap: number;
-  hourlyChange: number;
+  dailyChange: number;
   timestamp: Date;
 }
 
@@ -12,7 +12,7 @@ const CryptoSchema: Schema = new Schema({
   coinId: { type: String, required: true },
   price: { type: Number, required: true },
   marketCap: { type: Number, required: true },
-  hourlyChange: { type: Number, required: true },
+  dailyChange: { type: Number, required: true },
   timestamp: { type: Date, default: Date.now },
 });
 
