@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cryptoRoutes from "./routes/cryptoRoutes";
 import { startCryptoJob } from "./jobs/cryptoJob";
+import errorHandler from './middleware/errorMiddleware';
 
 dotenv.config();
 
@@ -10,6 +11,8 @@ const app = express();
 app.use(express.json());
 
 app.use("/api/v1", cryptoRoutes);
+
+app.use(errorHandler)
 
 const port = process.env.PORT ?? 3000;
 

@@ -1,58 +1,84 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import Crypto from "../models/crypto";
 import { stddev } from "../utils/mathUtils";
+import { AppError, HttpCode } from "../core/appError";
 
 export const getCryptoStats = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   const { coin } = req.query;
-  if (!coin) {
-    res.status(400).json({ error: "Coin query parameter is required" });
-  }
 
   try {
+    if (!coin) {
+      throw new AppError(
+        "Coin query parameter is required",
+        HttpCode.BAD_REQUEST
+      );
+    }
     const latestRecord = await Crypto.findOne({ coinId: coin }).sort({
       timestamp: -1,
     });
     if (!latestRecord) {
-      res.status(404).json({ error: "No data found for the given coin" });
-      return;
+      throw new AppError(
+        "No data found for the given coin",
+        HttpCode.NOT_FOUND
+      );
     }
 
-    res.json({
+    res.status(HttpCode.OK).json({
       price: latestRecord.price,
       marketCap: latestRecord.marketCap,
       "24hChange": latestRecord.hourlyChange,
     });
   } catch (error) {
-    res.status(500).json({ error: "Error fetching crypto stats" });
+    next(
+      error instanceof AppError
+        ? error
+        : new AppError(
+            "Error fetching crypto stats",
+            HttpCode.INTERNAL_SERVER_ERROR
+          )
+    );
   }
 };
 
 export const getCryptoDeviation = async (
   req: Request,
-  res: Response
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   const { coin } = req.query;
-  if (!coin) {
-    res.status(400).json({ error: "Coin query parameter is required" });
-    return;
-  }
 
   try {
+    if (!coin) {
+      throw new AppError(
+        "Coin query parameter is required",
+        HttpCode.BAD_REQUEST
+      );
+    }
     const records = await Crypto.find({ coinId: coin })
       .sort({ timestamp: -1 })
       .limit(100);
     if (records.length < 2) {
-      res.status(400).json({ error: "Not enough data to calculate deviation" });
-      return;
+      throw new AppError(
+        "Not enough data to calculate deviation",
+        HttpCode.BAD_REQUEST
+      );
     }
 
     const prices = records.map((record) => record.price);
     const deviation = stddev(prices);
-    res.json({ deviation });
+    res.status(HttpCode.OK).json({ deviation });
   } catch (error) {
-    res.status(500).json({ error: "Error calculating deviation" });
+    next(
+      error instanceof AppError
+        ? error
+        : new AppError(
+            "Error calculating deviation",
+            HttpCode.INTERNAL_SERVER_ERROR
+          )
+    );
   }
 };
