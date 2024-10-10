@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import Crypto from "../models/crypto";
 import { stddev } from "../utils/mathUtils";
 import { AppError, HttpCode } from "../core/appError";
+import { formatResponse } from "../utils/responseFormatter";
 
 export const getCryptoStats = async (
   req: Request,
@@ -27,11 +28,17 @@ export const getCryptoStats = async (
       );
     }
 
-    res.status(HttpCode.OK).json({
-      price: latestRecord.price,
-      marketCap: latestRecord.marketCap,
-      "24hChange": latestRecord.hourlyChange,
-    });
+    res.status(HttpCode.OK).json(
+      formatResponse(
+        true,
+        {
+          price: latestRecord.price,
+          marketCap: latestRecord.marketCap,
+          "24hChange": latestRecord.hourlyChange,
+        },
+        "Crypto stats fetched successfully!"
+      )
+    );
   } catch (error) {
     next(
       error instanceof AppError
@@ -70,7 +77,7 @@ export const getCryptoDeviation = async (
 
     const prices = records.map((record) => record.price);
     const deviation = stddev(prices);
-    res.status(HttpCode.OK).json({ deviation });
+    res.status(HttpCode.OK).json(formatResponse(true,{ deviation },"Crypto deviation calculated successfully!"));
   } catch (error) {
     next(
       error instanceof AppError
